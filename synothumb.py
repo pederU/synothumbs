@@ -30,8 +30,8 @@ from io import StringIO
 #########################################################################
 NumOfThreads=8  # Number of threads
 startTime=time.time()
-imageExtensions=['.jpg','.png','.jpeg','.tif','.bmp','.cr2'] #possibly add other raw types?
-videoExtensions=['.mov','.m4v','mp4']
+imageExtensions=['.jpg','.png','.jpeg','.tif','.bmp','.cr2','.arw'] #possibly add other raw types?
+videoExtensions=['.mov','.m4v','.mp4']
 xlName="SYNOPHOTO_THUMB_XL.jpg" ; xlSize=(1280,1280) #XtraLarge
 lName="SYNOPHOTO_THUMB_L.jpg" ; lSize=(800,800) #Large
 bName="SYNOPHOTO_THUMB_B.jpg" ; bSize=(640,640) #Big
@@ -60,6 +60,11 @@ class convertImage(threading.Thread):
                 
                 #Following if statements converts raw images using dcraw first
                 if os.path.splitext(self.imagePath)[1].lower() == ".cr2":
+                    self.dcrawcmd = "dcraw -c -b 8 -q 0 -w -H 5 '%s'" % self.imagePath
+                    self.dcraw_proc = subprocess.Popen(shlex.split(self.dcrawcmd), stdout=subprocess.PIPE)
+                    self.raw = StringIO(self.dcraw_proc.communicate()[0])
+                    self.image=Image.open(self.raw)
+                elif os.path.splitext(self.imagePath)[1].lower() == ".arw":
                     self.dcrawcmd = "dcraw -c -b 8 -q 0 -w -H 5 '%s'" % self.imagePath
                     self.dcraw_proc = subprocess.Popen(shlex.split(self.dcrawcmd), stdout=subprocess.PIPE)
                     self.raw = StringIO(self.dcraw_proc.communicate()[0])
